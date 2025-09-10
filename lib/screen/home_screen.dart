@@ -20,6 +20,6 @@ class _HomeScreenState extends State<HomeScreen> {
     //initialising device size
     mq = MediaQuery.sizeOf(context);
 
-    return Scaffold(body: Center(child: Text("Hello im here")));
+    return Scaffold(body: Center(child: Text("Hello im home screen")));
   }
 }

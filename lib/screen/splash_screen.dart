@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/screen/home_screen.dart';
+import 'package:learn_sphere_ai/screen/onboarding_screen.dart';
+import 'package:lottie/lottie.dart';
 
 // Splash screen displays a logo and a progress indicator
 class SplashScreen extends StatefulWidget {
@@ -42,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen>
   Route _createFadeRoute() {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) =>
-          const HomeScreen(),
+          const OnboardingScreen(),
       transitionDuration: const Duration(milliseconds: 500),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return FadeTransition(opacity: animation, child: child);
@@ -88,8 +90,8 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
-                  child: Image.asset(
-                    'assets/images/logo.png',
+                  child: Lottie.asset(
+                    'assets/lottie/LearnSphere_Animation.json',
                     width: mq.width * 0.4,
                     fit: BoxFit.contain,
                   ),
