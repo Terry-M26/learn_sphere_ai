@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
+import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/screen/home_screen.dart';
 import 'package:learn_sphere_ai/screen/onboarding_screen.dart';
 import 'package:lottie/lottie.dart';
@@ -44,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
   Route _createFadeRoute() {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) =>
-          const OnboardingScreen(),
+          Pref.showOnboarding ? const OnboardingScreen() : const HomeScreen(),
       transitionDuration: const Duration(milliseconds: 500),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return FadeTransition(opacity: animation, child: child);
