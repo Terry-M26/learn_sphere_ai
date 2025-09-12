@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/screen/splash_screen.dart';
 
@@ -21,7 +23,8 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return const GetMaterialApp(
+      title: appName,
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
     );

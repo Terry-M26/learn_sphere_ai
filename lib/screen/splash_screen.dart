@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/screen/home_screen.dart';
@@ -13,51 +14,23 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-
-  //Initializing the animation controller and fade animation
+class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1000),
-      vsync: this,
-    );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-
-    _animationController.forward();
-
-    //Delaying the navigation to the home screen
+    // Delaying the navigation to the home screen
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.of(context).pushReplacement(_createFadeRoute());
+        Get.off(
+          () => Pref.showOnboarding
+              ? const OnboardingScreen()
+              : const HomeScreen(),
+          transition: Transition.fadeIn,
+          duration: const Duration(milliseconds: 1000),
+        );
       }
     });
-  }
-
-  //Creating a fade transition route
-  Route _createFadeRoute() {
-    return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          Pref.showOnboarding ? const OnboardingScreen() : const HomeScreen(),
-      transitionDuration: const Duration(milliseconds: 500),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(opacity: animation, child: child);
-      },
-    );
-  }
-
-  //Avoid memory leaks
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   @override
@@ -73,63 +46,52 @@ class _SplashScreenState extends State<SplashScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Fades in the logo image
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Lottie.asset(
-                    'assets/lottie/LearnSphere_Animation.json',
-                    width: mq.width * 0.4,
-                    fit: BoxFit.contain,
+            // Logo container
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
                   ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Lottie.asset(
+                  'assets/lottie/LearnSphere_Animation.json',
+                  width: mq.width * 0.4,
+                  fit: BoxFit.contain,
                 ),
               ),
             ),
 
-            // Adds a small space between the logo and the text
             const SizedBox(height: 30),
 
-            // Fades in the 'LearnSphere AI' text
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: Text(
-                'LearnSphere AI',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withOpacity(0.9),
-                ),
+            // 'LearnSphere AI' text
+            Text(
+              'LearnSphere AI',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withOpacity(0.9),
               ),
             ),
 
-            // Adds a small space between the text and the progress indicator
             const SizedBox(height: 30),
 
-            // Fades in the progress indicator
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.white.withOpacity(0.8),
-                  ),
+            // Progress indicator
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.white.withOpacity(0.8),
                 ),
               ),
             ),

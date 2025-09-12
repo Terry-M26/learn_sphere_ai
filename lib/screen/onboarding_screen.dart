@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/model/onboard.dart';
 import 'package:learn_sphere_ai/screen/home_screen.dart';
@@ -140,10 +141,10 @@ class OnboardingScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         if (isLast) {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const HomeScreen(),
-                            ),
+                          Get.off(
+                            () => const HomeScreen(),
+                            transition: Transition.fadeIn,
+                            duration: const Duration(milliseconds: 1000),
                           );
                         } else {
                           c.nextPage(
