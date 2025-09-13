@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/helper/theme_provider.dart';
@@ -19,9 +20,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    Pref.showOnboarding = false;
-  }
 
+    //Switch to false after development!!!!!
+    Pref.showOnboarding = true;
+  }
 
   Widget _buildFeatureCard(FeatureCards feature) {
     return Container(
@@ -104,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-    );
+    ).animate().scale(duration: const Duration(milliseconds: 800));
   }
 
   @override

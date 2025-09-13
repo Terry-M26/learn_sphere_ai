@@ -141,11 +141,7 @@ class OnboardingScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         if (isLast) {
-                          Get.off(
-                            () => const HomeScreen(),
-                            transition: Transition.fadeIn,
-                            duration: const Duration(milliseconds: 1600),
-                          );
+                          Get.off(() => const HomeScreen());
                         } else {
                           c.nextPage(
                             duration: const Duration(milliseconds: 500),

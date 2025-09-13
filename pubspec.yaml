@@ -55,6 +55,9 @@ dependencies:
   #For launching URLs and email
   url_launcher: ^6.2.5
 
+  #For animation
+  flutter_animate: ^4.5.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
