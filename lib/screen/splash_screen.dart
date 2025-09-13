@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ? const OnboardingScreen()
               : const HomeScreen(),
           transition: Transition.fadeIn,
-          duration: const Duration(milliseconds: 1000),
+          duration: const Duration(milliseconds: 1600),
         );
       }
     });

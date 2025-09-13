@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/helper/pref.dart';
+import 'package:learn_sphere_ai/helper/theme_provider.dart';
 import 'package:learn_sphere_ai/model/feature.dart';
 import 'package:learn_sphere_ai/widget/custom_drawer.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -139,110 +141,130 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     mq = MediaQuery.sizeOf(context);
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            color: Colors.white,
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            leading: Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.menu),
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                onPressed: () {
+                  Scaffold.of(context).openDrawer();
+                },
+              ),
+            ),
+            title: Text(
+              'LearnSphere AI',
+              style: TextStyle(
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                ),
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                onPressed: () {
+                  themeProvider.toggleTheme();
+                },
+              ),
+            ],
+            elevation: 1,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(9)),
+            ),
           ),
-        ),
-        title: const Text(
-          'LearnSphere AI',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.light_mode),
-            color: Colors.white,
-            onPressed: () {},
-          ),
-        ],
-        elevation: 1,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(9)),
-        ),
-      ),
-      drawer: const CustomDrawer(),
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/background.jpg'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 40),
-
-                        // Welcome Header
-                        Row(
+          drawer: const CustomDrawer(),
+          body: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  themeProvider.isDarkMode
+                      ? 'assets/images/background_DM.jpg'
+                      : 'assets/images/background_LM.jpg',
+                ),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: SafeArea(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.home, size: 32),
-                              onPressed: () {},
-                              color: Colors.white,
+                            const SizedBox(height: 40),
+
+                            // Welcome Header
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.home, size: 32),
+                                  onPressed: () {},
+                                  color: themeProvider.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                                Text(
+                                  "Home",
+                                  style: TextStyle(
+                                    color: themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
                             ),
+
+                            const SizedBox(height: 30),
                             Text(
-                              "Home",
+                              'Select a feature',
                               style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1.2,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: themeProvider.isDarkMode
+                                    ? Colors.grey[400]
+                                    : Colors.black,
+                                height: 1.4,
                               ),
                             ),
-                            const SizedBox(width: 8),
+
+                            const SizedBox(height: 12),
+
+                            // Feature Cards
+                            ...features.map(
+                              (feature) => _buildFeatureCard(feature),
+                            ),
+
+                            const SizedBox(height: 32),
                           ],
                         ),
-
-                        const SizedBox(height: 30),
-                        Text(
-                          'Select a feature',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.grey[500],
-                            height: 1.4,
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        // Feature Cards
-                        ...features.map(
-                          (feature) => _buildFeatureCard(feature),
-                        ),
-
-                        const SizedBox(height: 32),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
+                  );
+                },
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

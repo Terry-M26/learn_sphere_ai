@@ -48,6 +48,9 @@ dependencies:
 
   #For state management
   get: ^4.7.2
+  
+  #For theme management
+  provider: ^6.1.1
 
   #For launching URLs and email
   url_launcher: ^6.2.5

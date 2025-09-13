@@ -144,7 +144,7 @@ class OnboardingScreen extends StatelessWidget {
                           Get.off(
                             () => const HomeScreen(),
                             transition: Transition.fadeIn,
-                            duration: const Duration(milliseconds: 1000),
+                            duration: const Duration(milliseconds: 1600),
                           );
                         } else {
                           c.nextPage(
