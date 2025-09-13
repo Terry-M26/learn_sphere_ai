@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/helper/theme_provider.dart';
-import 'package:learn_sphere_ai/model/feature.dart';
+import 'package:learn_sphere_ai/model/feature_cards.dart';
 import 'package:learn_sphere_ai/widget/custom_drawer.dart';
 import 'package:provider/provider.dart';
 
@@ -22,38 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Pref.showOnboarding = false;
   }
 
-  final List<Feature> features = [
-    Feature(
-      title: 'AI Tutor Chat',
-      subtitle: 'Get instant help and explanations from your personal AI tutor',
-      icon: Icons.psychology_rounded,
-      gradientColors: [const Color(0xFF6E45E2), const Color(0xFF89D4CF)],
-      onTap: () {},
-    ),
-    Feature(
-      title: 'Challenge Mode',
-      subtitle: 'Test your knowledge with AI-generated practice questions',
-      icon: Icons.quiz_rounded,
-      gradientColors: [const Color(0xFFFF6B6B), const Color(0xFF4ECDC4)],
-      onTap: () {},
-    ),
-    Feature(
-      title: 'Lecture Storage',
-      subtitle: 'Save, organize and summarize your lectures with AI',
-      icon: Icons.library_books_rounded,
-      gradientColors: [const Color(0xFFFF9A9E), const Color(0xFFFAD0C4)],
-      onTap: () {},
-    ),
-    Feature(
-      title: 'Lecture Summary',
-      subtitle: 'Save your lecture summary with AI',
-      icon: Icons.insights_rounded,
-      gradientColors: [const Color(0xFFA18CD1), const Color(0xFFFBC2EB)],
-      onTap: () {},
-    ),
-  ];
 
-  Widget _buildFeatureCard(Feature feature) {
+  Widget _buildFeatureCard(FeatureCards feature) {
     return Container(
       margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
@@ -249,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 12),
 
                             // Feature Cards
-                            ...features.map(
+                            ...FeatureCards.values.map(
                               (feature) => _buildFeatureCard(feature),
                             ),
 
