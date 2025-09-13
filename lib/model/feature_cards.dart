@@ -4,38 +4,50 @@ enum FeatureCards {
   aiTutorChat(
     title: 'AI Tutor Chat',
     subtitle: 'Get instant help and explanations from your personal AI tutor',
-    icon: Icons.psychology_rounded,
-    gradientColors: [Color(0xFF6E45E2), Color(0xFF89D4CF)],
+    imagePath: 'assets/images/AI_tutor_chat_icon.png',
+    gradientColors: [
+      Color.fromARGB(255, 0, 194, 253),
+      Color.fromARGB(207, 0, 136, 248),
+    ],
   ),
   challengeMode(
     title: 'Challenge Mode',
     subtitle: 'Test your knowledge with AI-generated practice questions',
-    icon: Icons.quiz_rounded,
-    gradientColors: [Color(0xFFFF6B6B), Color(0xFF4ECDC4)],
+    imagePath: 'assets/images/challenge_icon.png',
+    gradientColors: [
+      Color.fromARGB(255, 230, 30, 220),
+      Color.fromARGB(255, 10, 180, 247),
+    ],
   ),
   lectureStorage(
     title: 'Lecture Storage',
     subtitle: 'Save, organize and summarize your lectures with AI',
-    icon: Icons.library_books_rounded,
-    gradientColors: [Color(0xFFFF9A9E), Color(0xFFFAD0C4)],
+    imagePath: 'assets/images/lecture_library_logo.png',
+    gradientColors: [
+      Color.fromARGB(255, 253, 174, 3),
+      Color.fromARGB(255, 255, 222, 36),
+    ],
   ),
   lectureSummary(
     title: 'Lecture Summary',
     subtitle: 'Save your lecture summary with AI',
-    icon: Icons.insights_rounded,
-    gradientColors: [Color(0xFFA18CD1), Color(0xFFFBC2EB)],
+    imagePath: 'assets/images/lecture_summary_icon.png',
+    gradientColors: [
+      Color.fromARGB(255, 253, 174, 3),
+      Color.fromARGB(255, 245, 16, 17),
+    ],
   );
 
   const FeatureCards({
     required this.title,
     required this.subtitle,
-    required this.icon,
+    required this.imagePath,
     required this.gradientColors,
   });
 
   final String title;
   final String subtitle;
-  final IconData icon;
+  final String imagePath;
   final List<Color> gradientColors;
 
   /// Get the onTap callback for each feature

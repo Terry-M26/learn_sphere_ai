@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(feature.icon, color: Colors.white, size: 32),
+                  child: Image.asset(feature.imagePath, width: 40, height: 40),
                 ),
                 const SizedBox(width: 20),
                 Expanded(
