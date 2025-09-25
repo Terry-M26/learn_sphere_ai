@@ -21,17 +21,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
-    // Test API call - remove this after testing
-    _testAPI();
-
-    //Switch to false after development
-    Pref.showOnboarding = true;
-  }
-
-  // Test method for API call
-  Future<void> _testAPI() async {
-    await APIs.getAnswer('Hello');
   }
 
   Widget _buildFeatureCard(FeatureCards feature) {
