@@ -24,6 +24,10 @@ class APIs {
         "max_tokens": 2000,
         "temperature": 0,
         "messages": [
+            {"role": "system",
+              "content":
+                  "You are an AI tutor. Your job is to help students understand concepts step by step, explain clearly, give examples, and encourage them to think critically instead of just giving the answer right away."
+            },
           {"role": "user", "content": question},
         ],
       }),
