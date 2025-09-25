@@ -58,6 +58,9 @@ dependencies:
   #For animation
   flutter_animate: ^4.5.2
 
+  #For API call
+  http: ^1.5.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

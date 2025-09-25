@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../model/home_type.dart' as homeType;
+import '../screen/feature/AITutorChat.dart';
 
 enum FeatureCards {
   aiTutorChat(
@@ -54,10 +57,7 @@ enum FeatureCards {
   VoidCallback get onTap {
     switch (this) {
       case FeatureCards.aiTutorChat:
-        return () {
-          // TODO: Navigate to AI Tutor Chat screen
-          print('AI Tutor Chat tapped');
-        };
+        return homeType.HomeType.aiTutor.onTap;
       case FeatureCards.challengeMode:
         return () {
           // TODO: Navigate to Challenge Mode screen
