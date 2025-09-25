@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import '../model/home_type.dart' as homeType;
-import '../screen/feature/AITutorChat.dart';
 
 enum FeatureCards {
   aiTutorChat(
