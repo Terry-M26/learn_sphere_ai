@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:learn_sphere_ai/apis/apis.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
-import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/helper/theme_provider.dart';
 import 'package:learn_sphere_ai/widget/feature_cards.dart';
 import 'package:learn_sphere_ai/widget/custom_drawer.dart';
