@@ -1,4 +1,4 @@
-package com.example.learn_sphere_ai
+package com.LearnSphereAI
 
 import io.flutter.embedding.android.FlutterActivity
 

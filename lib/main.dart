@@ -6,9 +6,12 @@ import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/helper/theme_provider.dart';
 import 'package:learn_sphere_ai/screen/splash_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   //Initializing Hive
   await Pref.initialze();

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "817498739443",
+    "project_id": "learnsphere-ai-7a882",
+    "storage_bucket": "learnsphere-ai-7a882.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:817498739443:android:ed3563ba9eb9d05f921d86",
+        "android_client_info": {
+          "package_name": "com.LearnSphereAI"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "817498739443-jqfv2r0l99tll5pm473p2nb4472rf071.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.LearnSphereAI",
+            "certificate_hash": "08e9d5f74b3aa75079fca6e2be3641c7915e65fc"
+          }
+        },
+        {
+          "client_id": "817498739443-kroildabhln8ot8nlbmepadi21gqnn7f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwNbWUwCQGWtdxzF0q9ayoJfL2kA-LFWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "817498739443-kroildabhln8ot8nlbmepadi21gqnn7f.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "817498739443-620o6rdq4s8fpd335gvu2un8lm17skme.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.LearnSphereAI"
+              }
+            }
+          ]
+        }
+      }
+    }
+
+  ],
+  "configuration_version": "1"
+}
