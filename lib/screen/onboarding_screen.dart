@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
+import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/model/onboard.dart';
 import 'package:learn_sphere_ai/screen/home_screen.dart';
 import 'package:lottie/lottie.dart';
@@ -141,6 +142,8 @@ class OnboardingScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         if (isLast) {
+                          // Mark onboarding as completed
+                          Pref.showOnboarding = false;
                           Get.off(() => const HomeScreen());
                         } else {
                           c.nextPage(

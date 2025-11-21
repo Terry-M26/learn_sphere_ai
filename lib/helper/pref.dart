@@ -15,7 +15,6 @@ class Pref {
       _box.get('showOnboarding', defaultValue: true);
   static set showOnboarding(bool value) => _box.put('showOnboarding', value);
 
-  static bool get isDarkMode =>
-      _box.get('isDarkMode', defaultValue: false);
+  static bool get isDarkMode => _box.get('isDarkMode', defaultValue: false);
   static set isDarkMode(bool value) => _box.put('isDarkMode', value);
 }

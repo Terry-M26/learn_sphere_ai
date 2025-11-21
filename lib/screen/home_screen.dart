@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
+import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/helper/theme_provider.dart';
 import 'package:learn_sphere_ai/widget/feature_cards.dart';
 import 'package:learn_sphere_ai/widget/custom_drawer.dart';
@@ -14,15 +14,14 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin, RouteAware {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
-  Key _animationKey = UniqueKey();
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    Pref.showOnboarding = false;
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -31,29 +30,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final route = ModalRoute.of(context);
-    if (route is PageRoute) {
-      // Register this route with the RouteObserver if you have one
-      // For now, we'll use a simpler approach
-    }
-  }
-
-  @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
-  }
-
-  // This method will be called when the route becomes active again
-  void didPopNext() {
-    // Trigger animations when returning from another screen
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        _restartAnimations();
-      }
-    });
   }
 
   void _startAnimation() {
@@ -61,110 +40,88 @@ class _HomeScreenState extends State<HomeScreen>
     _animationController.forward();
   }
 
-  void _restartAnimations() {
-    setState(() {
-      _animationKey = UniqueKey();
-    });
-    _startAnimation();
-  }
-
   Widget _buildFeatureCard(FeatureCards feature, int index) {
     return Container(
-          key: ValueKey('${_animationKey.toString()}_$index'),
-          margin: const EdgeInsets.only(bottom: 18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.25),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: feature.onTap,
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: feature.gradientColors,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: feature.gradientColors.first.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Image.asset(
-                        feature.imagePath,
-                        width: 40,
-                        height: 40,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            feature.title,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            feature.subtitle,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.white.withOpacity(0.9),
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.white.withOpacity(0.7),
-                      size: 20,
-                    ),
-                  ],
-                ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: feature.onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: feature.gradientColors,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: feature.gradientColors.first.withOpacity(0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Image.asset(feature.imagePath, width: 40, height: 40),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        feature.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        feature.subtitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withOpacity(0.9),
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white.withOpacity(0.7),
+                  size: 20,
+                ),
+              ],
             ),
           ),
-        )
-        .animate()
-        .scale(
-          duration: const Duration(milliseconds: 800),
-          delay: Duration(milliseconds: 100 * index),
-          curve: Curves.elasticOut,
-        )
-        .fadeIn(
-          duration: const Duration(milliseconds: 600),
-          delay: Duration(milliseconds: 50 * index),
-        );
+        ),
+      ),
+    );
   }
 
   @override
