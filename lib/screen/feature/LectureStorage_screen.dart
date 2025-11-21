@@ -45,7 +45,7 @@ class _State extends State<LecturestorageScreen> {
                     ),
                     child: Card(
                       elevation: 8,
-                      shadowColor: Colors.blue.withOpacity(0.3),
+                      shadowColor: Colors.yellow.withOpacity(0.3),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -76,9 +76,7 @@ class _State extends State<LecturestorageScreen> {
                                         style: TextStyle(
                                           fontSize: 22,
                                           fontWeight: FontWeight.bold,
-                                          color: isDark
-                                              ? Colors.blue.shade300
-                                              : Colors.blue.shade800,
+                                          color: Colors.yellow.shade800,
                                         ),
                                       ),
                                       SizedBox(height: 4),
@@ -264,7 +262,7 @@ class _State extends State<LecturestorageScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
-            colors: [Colors.blue.shade600, Colors.blue.shade800],
+            colors: [Colors.blue.shade600, Colors.orange.shade400],
           ),
           boxShadow: [
             BoxShadow(
@@ -294,7 +292,10 @@ class _State extends State<LecturestorageScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.blue.shade600, Colors.orange.shade400],
+              colors: [
+                const Color.fromARGB(255, 255, 230, 2),
+                const Color.fromARGB(255, 248, 151, 4),
+              ],
             ),
             borderRadius: BorderRadius.circular(20),
           ),
