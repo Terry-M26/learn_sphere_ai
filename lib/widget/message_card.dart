@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/helper/theme_provider.dart';
 import 'package:learn_sphere_ai/model/message.dart';
@@ -210,14 +211,28 @@ class _MessageCardState extends State<MessageCard>
               ),
             ],
           ),
-          child: CircleAvatar(
-            radius: 20,
-            backgroundColor: isDarkMode ? Colors.grey[600] : Colors.grey[300],
-            child: const Icon(
-              Icons.person_rounded,
-              color: Colors.white,
-              size: 30,
-            ),
+          child: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              final user = snapshot.data;
+
+              return CircleAvatar(
+                radius: 20,
+                backgroundColor: isDarkMode
+                    ? Colors.grey[600]
+                    : Colors.grey[300],
+                backgroundImage: user?.photoURL != null
+                    ? NetworkImage(user!.photoURL!)
+                    : null,
+                child: user?.photoURL == null
+                    ? const Icon(
+                        Icons.person_rounded,
+                        color: Colors.white,
+                        size: 30,
+                      )
+                    : null,
+              );
+            },
           ),
         ),
         const SizedBox(width: 8),

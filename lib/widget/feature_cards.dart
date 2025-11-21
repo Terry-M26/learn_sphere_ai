@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../model/home_type.dart' as homeType;
+import '../screen/feature/LectureStorage_screen.dart';
 
 enum FeatureCards {
   aiTutorChat(
@@ -63,8 +65,7 @@ enum FeatureCards {
         };
       case FeatureCards.lectureStorage:
         return () {
-          // TODO: Navigate to Lecture Storage screen
-          print('Lecture Storage tapped');
+          Get.to(() => const LecturestorageScreen());
         };
       case FeatureCards.lectureSummary:
         return () {
