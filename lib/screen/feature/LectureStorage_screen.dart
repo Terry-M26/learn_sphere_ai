@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:learn_sphere_ai/screen/feature/AddModule.dart';
+import 'package:learn_sphere_ai/screen/feature/LectureNotes_screen.dart';
 import 'package:learn_sphere_ai/service/database.dart';
 
 class LecturestorageScreen extends StatefulWidget {
@@ -43,142 +44,152 @@ class _State extends State<LecturestorageScreen> {
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    child: Card(
-                      elevation: 8,
-                      shadowColor: Colors.yellow.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: isDark
-                                ? [Colors.grey.shade800, Colors.grey.shade700]
-                                : [Colors.white, Colors.blue.shade50],
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.to(
+                          () => LectureNotesScreen(
+                            moduleId: ds.id,
+                            moduleName: ds["moduleName"],
                           ),
+                        );
+                      },
+                      child: Card(
+                        elevation: 8,
+                        shadowColor: Colors.yellow.withOpacity(0.3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        ds["moduleName"],
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.yellow.shade800,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        'Module',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: isDark
-                                              ? Colors.grey.shade400
-                                              : Colors.grey.shade600,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: isDark
-                                        ? Colors.grey.shade700
-                                        : Colors.blue.shade100,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.edit_rounded,
-                                          color: isDark
-                                              ? Colors.blue.shade300
-                                              : Colors.blue.shade700,
-                                          size: 20,
-                                        ),
-                                        onPressed: () {
-                                          Get.to(
-                                            () => Module(
-                                              moduleId: ds.id,
-                                              moduleName: ds["moduleName"],
-                                              lecturer: ds["lecturer"],
-                                              year: ds["year"],
-                                              semester: ds["semester"],
-                                              isEditing: true,
-                                            ),
-                                          );
-                                        },
-                                        tooltip: 'Edit Module',
-                                      ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.delete_rounded,
-                                          color: isDark
-                                              ? Colors.red.shade400
-                                              : Colors.red.shade600,
-                                          size: 20,
-                                        ),
-                                        onPressed: () {
-                                          _showDeleteConfirmationDialog(
-                                            ds.id,
-                                            ds["moduleName"],
-                                          );
-                                        },
-                                        tooltip: 'Delete Module',
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: isDark
+                                  ? [Colors.grey.shade800, Colors.grey.shade700]
+                                  : [Colors.white, Colors.blue.shade50],
                             ),
-                            SizedBox(height: 16),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildInfoCard(
-                                    Icons.person_rounded,
-                                    'Lecturer',
-                                    ds["lecturer"],
-                                    Colors.orange,
-                                    context,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          ds["moduleName"],
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.yellow.shade800,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          'Module',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: isDark
+                                                ? Colors.grey.shade400
+                                                : Colors.grey.shade600,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: _buildInfoCard(
-                                    Icons.calendar_today_rounded,
-                                    'Year',
-                                    ds["year"],
-                                    Colors.green,
-                                    context,
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? Colors.grey.shade700
+                                          : Colors.blue.shade100,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.edit_rounded,
+                                            color: isDark
+                                                ? Colors.blue.shade300
+                                                : Colors.blue.shade700,
+                                            size: 20,
+                                          ),
+                                          onPressed: () {
+                                            Get.to(
+                                              () => Module(
+                                                moduleId: ds.id,
+                                                moduleName: ds["moduleName"],
+                                                lecturer: ds["lecturer"],
+                                                year: ds["year"],
+                                                semester: ds["semester"],
+                                                isEditing: true,
+                                              ),
+                                            );
+                                          },
+                                          tooltip: 'Edit Module',
+                                        ),
+                                        IconButton(
+                                          icon: Icon(
+                                            Icons.delete_rounded,
+                                            color: isDark
+                                                ? Colors.red.shade400
+                                                : Colors.red.shade600,
+                                            size: 20,
+                                          ),
+                                          onPressed: () {
+                                            _showDeleteConfirmationDialog(
+                                              ds.id,
+                                              ds["moduleName"],
+                                            );
+                                          },
+                                          tooltip: 'Delete Module',
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            _buildInfoCard(
-                              Icons.school_rounded,
-                              'Semester',
-                              ds["semester"],
-                              Colors.purple,
-                              context,
-                            ),
-                          ],
+                                ],
+                              ),
+                              SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildInfoCard(
+                                      Icons.person_rounded,
+                                      'Lecturer',
+                                      ds["lecturer"],
+                                      Colors.orange,
+                                      context,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildInfoCard(
+                                      Icons.calendar_today_rounded,
+                                      'Year',
+                                      ds["year"],
+                                      Colors.green,
+                                      context,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 12),
+                              _buildInfoCard(
+                                Icons.school_rounded,
+                                'Semester',
+                                ds["semester"],
+                                Colors.purple,
+                                context,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

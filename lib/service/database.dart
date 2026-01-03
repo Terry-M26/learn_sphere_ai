@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class DatabaseMethods {
   Future addModuleDetails(
@@ -40,5 +42,81 @@ class DatabaseMethods {
         .collection("modules")
         .doc(moduleId)
         .delete();
+  }
+
+  // Lecture Notes Methods
+  Future<Stream<QuerySnapshot>> getLectureNotes(
+    String userId,
+    String moduleId,
+  ) async {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('modules')
+        .doc(moduleId)
+        .collection('lecture_notes')
+        .orderBy('uploadDate', descending: true)
+        .snapshots();
+  }
+
+  Future<String> uploadPDF(
+    String userId,
+    String moduleId,
+    File file,
+    String fileName,
+    int fileSize,
+  ) async {
+    // Upload to Firebase Storage
+    String storagePath = 'users/$userId/modules/$moduleId/pdfs/$fileName';
+    UploadTask uploadTask = FirebaseStorage.instance
+        .ref()
+        .child(storagePath)
+        .putFile(file);
+
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+
+    // Save metadata to Firestore
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('modules')
+        .doc(moduleId)
+        .collection('lecture_notes')
+        .add({
+          'fileName': fileName,
+          'downloadUrl': downloadUrl,
+          'storagePath': storagePath,
+          'fileSize': fileSize,
+          'uploadDate': FieldValue.serverTimestamp(),
+        });
+
+    return downloadUrl;
+  }
+
+  Future<void> deletePDF(
+    String userId,
+    String moduleId,
+    String docId,
+    String storagePath,
+  ) async {
+    // Delete from Storage
+    await FirebaseStorage.instance.ref().child(storagePath).delete();
+
+    // Delete from Firestore
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('modules')
+        .doc(moduleId)
+        .collection('lecture_notes')
+        .doc(docId)
+        .delete();
+  }
+
+  Future<void> downloadPDFToFile(String downloadUrl, String filePath) async {
+    await FirebaseStorage.instance
+        .refFromURL(downloadUrl)
+        .writeToFile(File(filePath));
   }
 }
