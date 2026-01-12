@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../model/home_type.dart' as homeType;
 import '../screen/feature/LectureStorage_screen.dart';
+import '../screen/feature/LectureSummary_screen.dart';
 
 enum FeatureCards {
   aiTutorChat(
@@ -69,8 +70,7 @@ enum FeatureCards {
         };
       case FeatureCards.lectureSummary:
         return () {
-          // TODO: Navigate to Lecture Summary screen
-          print('Lecture Summary tapped');
+          Get.to(() => const LectureSummaryScreen());
         };
     }
   }
