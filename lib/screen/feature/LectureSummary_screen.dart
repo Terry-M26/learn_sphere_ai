@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class LectureSummaryScreen extends StatefulWidget {
   const LectureSummaryScreen({super.key});
@@ -11,8 +14,10 @@ class LectureSummaryScreen extends StatefulWidget {
 class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
   final TextEditingController _textController = TextEditingController();
   String? _selectedFileName;
+  String? _extractedPdfText;
   bool _isPdfSelected = false;
   bool _isSummarizing = false;
+  bool _isExtractingText = false;
 
   @override
   void dispose() {
@@ -20,18 +25,83 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
     super.dispose();
   }
 
-  void _pickPDF() {
-    // TODO: Phase 2 - Implement PDF picker
-    setState(() {
-      _selectedFileName = 'sample_lecture.pdf';
-      _isPdfSelected = true;
-      _textController.clear();
-    });
+  Future<void> _pickPDF() async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _isExtractingText = true;
+          _selectedFileName = result.files.single.name;
+          _isPdfSelected = true;
+          _textController.clear();
+        });
+
+        // Extract text from PDF
+        final file = File(result.files.single.path!);
+        final bytes = await file.readAsBytes();
+        final extractedText = await _extractTextFromPdf(bytes);
+
+        setState(() {
+          _extractedPdfText = extractedText;
+          _isExtractingText = false;
+        });
+
+        if (extractedText.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Could not extract text from PDF. It may be image-based.',
+              ),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Extracted ${extractedText.length} characters from PDF',
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isExtractingText = false;
+        _isPdfSelected = false;
+        _selectedFileName = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error picking PDF: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<String> _extractTextFromPdf(List<int> bytes) async {
+    try {
+      final PdfDocument document = PdfDocument(inputBytes: bytes);
+      String text = PdfTextExtractor(document).extractText();
+      document.dispose();
+      return text.trim();
+    } catch (e) {
+      debugPrint('PDF text extraction error: $e');
+      return '';
+    }
   }
 
   void _clearPDF() {
     setState(() {
       _selectedFileName = null;
+      _extractedPdfText = null;
       _isPdfSelected = false;
     });
   }
@@ -106,7 +176,18 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
   }
 
   bool get _canSummarize {
-    return _isPdfSelected || _textController.text.trim().isNotEmpty;
+    if (_isExtractingText) return false;
+    if (_isPdfSelected) {
+      return _extractedPdfText != null && _extractedPdfText!.isNotEmpty;
+    }
+    return _textController.text.trim().isNotEmpty;
+  }
+
+  String get _textToSummarize {
+    if (_isPdfSelected && _extractedPdfText != null) {
+      return _extractedPdfText!;
+    }
+    return _textController.text.trim();
   }
 
   bool get _canSave {
@@ -284,9 +365,14 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            _isPdfSelected
-                ? 'PDF selected and ready'
-                : 'Select a PDF file from your device',
+            _isExtractingText
+                ? 'Extracting text from PDF...'
+                : (_isPdfSelected
+                      ? (_extractedPdfText != null &&
+                                _extractedPdfText!.isNotEmpty
+                            ? '${_extractedPdfText!.length} characters extracted'
+                            : 'No text could be extracted')
+                      : 'Select a PDF file from your device'),
             style: TextStyle(
               fontSize: 13,
               color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
@@ -297,9 +383,20 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton.icon(
-                onPressed: _isPdfSelected ? null : _pickPDF,
-                icon: const Icon(Icons.upload_file_rounded),
-                label: const Text('Choose PDF'),
+                onPressed: _isPdfSelected || _isExtractingText
+                    ? null
+                    : _pickPDF,
+                icon: _isExtractingText
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Icon(Icons.upload_file_rounded),
+                label: Text(_isExtractingText ? 'Extracting...' : 'Choose PDF'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange.shade400,
                   foregroundColor: Colors.white,
