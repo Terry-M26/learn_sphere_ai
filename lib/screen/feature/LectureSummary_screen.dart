@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
+import 'package:learn_sphere_ai/apis/apis.dart';
+import 'package:learn_sphere_ai/service/database.dart';
+import 'package:learn_sphere_ai/screen/feature/SavedSummaries_screen.dart';
 
 class LectureSummaryScreen extends StatefulWidget {
   const LectureSummaryScreen({super.key});
@@ -18,6 +23,9 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
   bool _isPdfSelected = false;
   bool _isSummarizing = false;
   bool _isExtractingText = false;
+  String? _generatedSummary;
+  int _currentChunk = 0;
+  int _totalChunks = 0;
 
   @override
   void dispose() {
@@ -106,73 +114,223 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
     });
   }
 
-  void _summarize() {
-    // TODO: Phase 3 - Implement summary process
+  // Maximum characters per chunk (~3000 chars ≈ 750 tokens, leaving room for system prompt)
+  static const int _maxChunkSize = 3000;
+
+  List<String> _splitIntoChunks(String text) {
+    final chunks = <String>[];
+
+    if (text.length <= _maxChunkSize) {
+      return [text];
+    }
+
+    int start = 0;
+    while (start < text.length) {
+      int end = start + _maxChunkSize;
+
+      if (end >= text.length) {
+        chunks.add(text.substring(start));
+        break;
+      }
+
+      // Try to break at a paragraph or sentence boundary
+      int breakPoint = text.lastIndexOf('\n\n', end);
+      if (breakPoint <= start) {
+        breakPoint = text.lastIndexOf('. ', end);
+      }
+      if (breakPoint <= start) {
+        breakPoint = text.lastIndexOf(' ', end);
+      }
+      if (breakPoint <= start) {
+        breakPoint = end;
+      }
+
+      chunks.add(text.substring(start, breakPoint + 1).trim());
+      start = breakPoint + 1;
+    }
+
+    return chunks;
+  }
+
+  Future<void> _summarize() async {
+    final textToProcess = _textToSummarize;
+
+    if (textToProcess.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No text to summarize'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isSummarizing = true;
+      _generatedSummary = null;
+      _currentChunk = 0;
+      _totalChunks = 0;
     });
 
-    Future.delayed(const Duration(seconds: 2), () {
+    try {
+      String summary;
+      final chunks = _splitIntoChunks(textToProcess);
+
+      if (chunks.length == 1) {
+        // Small text - summarize directly
+        summary = await APIs.summarizeText(textToProcess);
+      } else {
+        // Large text - process in chunks
+        setState(() {
+          _totalChunks = chunks.length;
+        });
+
+        final chunkSummaries = <String>[];
+
+        for (int i = 0; i < chunks.length; i++) {
+          setState(() {
+            _currentChunk = i + 1;
+          });
+
+          final chunkSummary = await APIs.summarizeChunk(
+            chunks[i],
+            i + 1,
+            chunks.length,
+          );
+
+          if (chunkSummary.isNotEmpty) {
+            chunkSummaries.add(chunkSummary);
+          }
+        }
+
+        // Combine all chunk summaries
+        if (chunkSummaries.length > 1) {
+          setState(() {
+            _currentChunk = 0; // Indicate combining phase
+          });
+          summary = await APIs.combineSummaries(chunkSummaries);
+        } else if (chunkSummaries.length == 1) {
+          summary = chunkSummaries.first;
+        } else {
+          summary = 'Could not generate summary. Please try again.';
+        }
+      }
+
+      setState(() {
+        _generatedSummary = summary;
+        _textController.text = summary;
+        _isSummarizing = false;
+        // Clear PDF selection so user can edit/save the summary
+        _isPdfSelected = false;
+        _selectedFileName = null;
+        _extractedPdfText = null;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Summary generated successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
       setState(() {
         _isSummarizing = false;
-        _textController.text =
-            'This is a placeholder summary. The actual GPT-powered summary will appear here after Phase 3 implementation.';
       });
-    });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error generating summary: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _saveSummary() {
-    // TODO: Phase 4 - Implement save with naming dialog
     _showSaveDialog();
   }
 
   void _showSaveDialog() {
     final nameController = TextEditingController();
+    bool isSaving = false;
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Save Summary'),
-        content: TextField(
-          controller: nameController,
-          decoration: const InputDecoration(
-            labelText: 'Summary Name',
-            hintText: 'Enter a name for this summary',
-            border: OutlineInputBorder(),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Save Summary'),
+          content: TextField(
+            controller: nameController,
+            decoration: const InputDecoration(
+              labelText: 'Summary Name',
+              hintText: 'Enter a name for this summary',
+              border: OutlineInputBorder(),
+            ),
+            autofocus: true,
+            enabled: !isSaving,
           ),
-          autofocus: true,
+          actions: [
+            TextButton(
+              onPressed: isSaving ? null : () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: isSaving
+                  ? null
+                  : () async {
+                      final title = nameController.text.trim();
+                      if (title.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please enter a name'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                        return;
+                      }
+
+                      setDialogState(() => isSaving = true);
+
+                      try {
+                        final userId = FirebaseAuth.instance.currentUser!.uid;
+                        await DatabaseMethods().saveSummary(
+                          userId,
+                          title,
+                          _textController.text,
+                        );
+
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Summary saved successfully!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } catch (e) {
+                        setDialogState(() => isSaving = false);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error saving: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+              child: isSaving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Save'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // TODO: Phase 4 - Save to Firebase
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Summary saved! (Phase 4 placeholder)'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            child: const Text('Save'),
-          ),
-        ],
       ),
     );
   }
 
   void _openSavedSummaries() {
-    // TODO: Phase 4 - Navigate to saved summaries list
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Saved summaries list coming in Phase 4'),
-        backgroundColor: Colors.blue,
-      ),
-    );
+    Get.to(() => const SavedSummariesScreen());
   }
 
   bool get _canSummarize {
@@ -514,10 +672,10 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
               elevation: 4,
             ),
             child: _isSummarizing
-                ? const Row(
+                ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
@@ -525,10 +683,14 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
                           strokeWidth: 2,
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Text(
-                        'Summarizing...',
-                        style: TextStyle(
+                        _totalChunks > 0
+                            ? (_currentChunk == 0
+                                  ? 'Combining summaries...'
+                                  : 'Processing chunk $_currentChunk/$_totalChunks...')
+                            : 'Summarizing...',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),

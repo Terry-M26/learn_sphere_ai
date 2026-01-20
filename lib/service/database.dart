@@ -119,4 +119,57 @@ class DatabaseMethods {
         .refFromURL(downloadUrl)
         .writeToFile(File(filePath));
   }
+
+  // Lecture Summary Methods (standalone collection)
+  Future<DocumentReference> saveSummary(
+    String userId,
+    String title,
+    String content,
+  ) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('summaries')
+        .add({
+          'title': title,
+          'content': content,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+  }
+
+  Future<Stream<QuerySnapshot>> getSummaries(String userId) async {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('summaries')
+        .orderBy('createdAt', descending: true)
+        .snapshots();
+  }
+
+  Future<void> deleteSummary(String userId, String summaryId) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('summaries')
+        .doc(summaryId)
+        .delete();
+  }
+
+  Future<void> updateSummary(
+    String userId,
+    String summaryId,
+    String title,
+    String content,
+  ) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('summaries')
+        .doc(summaryId)
+        .update({
+          'title': title,
+          'content': content,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+  }
 }
