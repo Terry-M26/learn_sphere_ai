@@ -172,4 +172,51 @@ class DatabaseMethods {
           'updatedAt': FieldValue.serverTimestamp(),
         });
   }
+
+  // Quiz History Methods
+  Future<DocumentReference> saveQuizResult(
+    String userId,
+    Map<String, dynamic> quizData,
+  ) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('quiz_history')
+        .add({
+          'title': quizData['title'],
+          'score': quizData['score'],
+          'totalQuestions': quizData['totalQuestions'],
+          'difficulty': quizData['difficulty'],
+          'questions': quizData['questions'],
+          'selectedAnswers': quizData['selectedAnswers'],
+          'completedAt': FieldValue.serverTimestamp(),
+        });
+  }
+
+  Future<Stream<QuerySnapshot>> getQuizHistory(String userId) async {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('quiz_history')
+        .orderBy('completedAt', descending: true)
+        .snapshots();
+  }
+
+  Future<void> deleteQuizResult(String userId, String quizId) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('quiz_history')
+        .doc(quizId)
+        .delete();
+  }
+
+  Future<DocumentSnapshot> getQuizResult(String userId, String quizId) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('quiz_history')
+        .doc(quizId)
+        .get();
+  }
 }

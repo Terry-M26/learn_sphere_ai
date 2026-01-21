@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../model/home_type.dart' as homeType;
+import '../screen/feature/ChallengeMode_screen.dart';
 import '../screen/feature/LectureStorage_screen.dart';
 import '../screen/feature/LectureSummary_screen.dart';
 
@@ -61,8 +62,7 @@ enum FeatureCards {
         return homeType.HomeType.aiTutor.onTap;
       case FeatureCards.challengeMode:
         return () {
-          // TODO: Navigate to Challenge Mode screen
-          print('Challenge Mode tapped');
+          Get.to(() => const ChallengeModeScreen());
         };
       case FeatureCards.lectureStorage:
         return () {
