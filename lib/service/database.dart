@@ -219,4 +219,87 @@ class DatabaseMethods {
         .doc(quizId)
         .get();
   }
+
+  // Chat History Methods
+  Future<DocumentReference> saveConversation(
+    String userId,
+    List<Map<String, dynamic>> messages,
+  ) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('chat_history')
+        .add({
+          'messages': messages,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+  }
+
+  Future<void> updateConversation(
+    String userId,
+    String conversationId,
+    List<Map<String, dynamic>> messages,
+  ) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('chat_history')
+        .doc(conversationId)
+        .update({
+          'messages': messages,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+  }
+
+  Stream<QuerySnapshot> getConversations(String userId) {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('chat_history')
+        .orderBy('updatedAt', descending: true)
+        .snapshots();
+  }
+
+  Future<DocumentSnapshot> getConversation(
+    String userId,
+    String conversationId,
+  ) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('chat_history')
+        .doc(conversationId)
+        .get();
+  }
+
+  Future<void> deleteConversation(String userId, String conversationId) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('chat_history')
+        .doc(conversationId)
+        .delete();
+  }
+
+  // Enforce conversation limit - delete oldest conversations if limit exceeded
+  Future<void> enforceConversationLimit(
+    String userId,
+    int maxConversations,
+  ) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('chat_history')
+        .orderBy('updatedAt', descending: true)
+        .get();
+
+    if (querySnapshot.docs.length > maxConversations) {
+      // Delete conversations beyond the limit (oldest ones)
+      final docsToDelete = querySnapshot.docs.sublist(maxConversations);
+      for (final doc in docsToDelete) {
+        await doc.reference.delete();
+      }
+    }
+  }
 }

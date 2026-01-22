@@ -68,6 +68,7 @@ dependencies:
   file_picker: ^10.3.7
   open_file: ^3.5.10
   syncfusion_flutter_pdf: ^27.1.58
+  intl: ^0.19.0
 
 
 dev_dependencies:

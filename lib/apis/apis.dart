@@ -5,9 +5,29 @@ import 'package:learn_sphere_ai/helper/global.dart';
 import 'dart:developer';
 
 class APIs {
-  //get answer from GPT
-  static Future<String> getAnswer(String question) async {
+  //get answer from GPT with conversation history for context
+  static Future<String> getAnswer(
+    String question, {
+    List<Map<String, String>>? conversationHistory,
+  }) async {
     try {
+      // Build messages list with system prompt
+      final messages = <Map<String, String>>[
+        {
+          "role": "system",
+          "content":
+              "You are an AI tutor named Albert. Your job is to help students understand concepts step by step, explain clearly, give examples, and encourage them to think critically instead of just giving the answer right away.",
+        },
+      ];
+
+      // Add conversation history for context
+      if (conversationHistory != null) {
+        messages.addAll(conversationHistory);
+      }
+
+      // Add current question
+      messages.add({"role": "user", "content": question});
+
       final res = await post(
         Uri.parse('https://api.openai.com/v1/chat/completions'),
 
@@ -22,14 +42,7 @@ class APIs {
           "model": "gpt-3.5-turbo",
           "max_tokens": 2000,
           "temperature": 0,
-          "messages": [
-            {
-              "role": "system",
-              "content":
-                  "You are an AI tutor. Your job is to help students understand concepts step by step, explain clearly, give examples, and encourage them to think critically instead of just giving the answer right away.",
-            },
-            {"role": "user", "content": question},
-          ],
+          "messages": messages,
         }),
       );
 
