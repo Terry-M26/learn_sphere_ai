@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:learn_sphere_ai/apis/apis.dart';
+import 'package:learn_sphere_ai/helper/auth_helper.dart';
 import 'package:learn_sphere_ai/service/database.dart';
 import 'package:learn_sphere_ai/screen/feature/SavedSummaries_screen.dart';
 
@@ -245,7 +246,15 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
     }
   }
 
-  void _saveSummary() {
+  void _saveSummary() async {
+    // Check if user is logged in
+    if (!AuthHelper.isLoggedIn) {
+      final loggedIn = await AuthHelper.showLoginRequiredDialog(
+        context,
+        featureName: 'Save Summary',
+      );
+      if (!loggedIn) return;
+    }
     _showSaveDialog();
   }
 
@@ -329,7 +338,15 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
     );
   }
 
-  void _openSavedSummaries() {
+  void _openSavedSummaries() async {
+    // Check if user is logged in
+    if (!AuthHelper.isLoggedIn) {
+      final loggedIn = await AuthHelper.showLoginRequiredDialog(
+        context,
+        featureName: 'Saved Summaries',
+      );
+      if (!loggedIn) return;
+    }
     Get.to(() => const SavedSummariesScreen());
   }
 

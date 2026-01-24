@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:learn_sphere_ai/controller/chat_controller.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/helper/theme_provider.dart';
+import 'package:learn_sphere_ai/helper/auth_helper.dart';
 import 'package:learn_sphere_ai/screen/feature/ChatHistory_screen.dart';
 import 'package:learn_sphere_ai/widget/message_card.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,15 @@ class _AITutorChatState extends State<AITutorChat>
   }
 
   void _openChatHistory() async {
+    // Check if user is logged in
+    if (!AuthHelper.isLoggedIn) {
+      final loggedIn = await AuthHelper.showLoginRequiredDialog(
+        context,
+        featureName: 'Chat History',
+      );
+      if (!loggedIn || !mounted) return;
+    }
+
     await _c.saveConversation();
     if (!mounted) return;
 

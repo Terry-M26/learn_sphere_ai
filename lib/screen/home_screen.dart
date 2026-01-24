@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:learn_sphere_ai/helper/global.dart';
 import 'package:learn_sphere_ai/helper/pref.dart';
 import 'package:learn_sphere_ai/helper/theme_provider.dart';
+import 'package:learn_sphere_ai/helper/connectivity_service.dart';
 import 'package:learn_sphere_ai/widget/feature_cards.dart';
 import 'package:learn_sphere_ai/widget/custom_drawer.dart';
 import 'package:provider/provider.dart';
@@ -16,11 +17,98 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _isConnected = true;
+  bool _isCheckingConnection = true;
+
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     Pref.showOnboarding = false;
+    _checkConnectivity();
+  }
+
+  Future<void> _checkConnectivity() async {
+    setState(() => _isCheckingConnection = true);
+    final connected = await ConnectivityService.checkInternetConnection();
+    setState(() {
+      _isConnected = connected;
+      _isCheckingConnection = false;
+    });
+  }
+
+  Widget _buildNoInternetBanner(bool isDark) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.red.shade600, Colors.red.shade400],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.red.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.wifi_off_rounded,
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'No Internet Connection',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Please connect to use LearnSphere AI',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: _checkConnectivity,
+            icon: _isCheckingConnection
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.refresh_rounded, color: Colors.white),
+            tooltip: 'Retry',
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.3, end: 0);
   }
 
   Widget _buildFeatureCard(FeatureCards feature, int index) {
@@ -197,7 +285,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 40),
+                            const SizedBox(height: 20),
+
+                            // No Internet Banner
+                            if (!_isConnected)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: _buildNoInternetBanner(
+                                  themeProvider.isDarkMode,
+                                ),
+                              ),
+
+                            const SizedBox(height: 20),
 
                             // Welcome Header
                             Row(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:learn_sphere_ai/helper/auth_helper.dart';
 import 'package:learn_sphere_ai/service/database.dart';
 import 'QuizResults_screen.dart';
 
@@ -15,16 +15,29 @@ class QuizHistoryScreen extends StatefulWidget {
 
 class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
   Stream<QuerySnapshot>? _quizHistoryStream;
-  final String _userId = FirebaseAuth.instance.currentUser!.uid;
+  String? _userId;
 
   @override
   void initState() {
     super.initState();
+    _checkAuthAndLoad();
+  }
+
+  Future<void> _checkAuthAndLoad() async {
+    if (!AuthHelper.isLoggedIn) {
+      // Should not happen as we check before navigating, but handle gracefully
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) Navigator.pop(context);
+      });
+      return;
+    }
+    _userId = AuthHelper.userId;
     _loadQuizHistory();
   }
 
   Future<void> _loadQuizHistory() async {
-    final stream = await DatabaseMethods().getQuizHistory(_userId);
+    if (_userId == null) return;
+    final stream = await DatabaseMethods().getQuizHistory(_userId!);
     setState(() {
       _quizHistoryStream = stream;
     });
@@ -63,7 +76,7 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
 
     if (confirmed == true) {
       try {
-        await DatabaseMethods().deleteQuizResult(_userId, quizId);
+        await DatabaseMethods().deleteQuizResult(_userId!, quizId);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Quiz deleted successfully'),

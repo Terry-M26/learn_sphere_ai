@@ -50,9 +50,16 @@ class APIs {
 
       log('res: $data');
       return data['choices'][0]['message']['content'];
+    } on SocketException catch (_) {
+      log('getAnswer: Network error');
+      return 'No internet connection. Please check your network and try again.';
     } catch (e) {
       log('getAnswer: $e');
-      return 'Something went wrong (Try again sometime)';
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('Failed host lookup')) {
+        return 'No internet connection. Please check your network and try again.';
+      }
+      return 'Service temporarily unavailable. Please try again later.';
     }
   }
 
@@ -92,9 +99,16 @@ class APIs {
       }
 
       return data['choices'][0]['message']['content'];
+    } on SocketException catch (_) {
+      log('summarizeText: Network error');
+      return 'No internet connection. Please check your network and try again.';
     } catch (e) {
       log('summarizeText error: $e');
-      return 'Something went wrong while summarizing. Please try again.';
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('Failed host lookup')) {
+        return 'No internet connection. Please check your network and try again.';
+      }
+      return 'Service temporarily unavailable. Please try again later.';
     }
   }
 

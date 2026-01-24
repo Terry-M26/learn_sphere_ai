@@ -112,19 +112,21 @@ class _QuizScreenState extends State<QuizScreen> {
       }
     }
 
-    // Save quiz result to Firebase
-    try {
-      final userId = FirebaseAuth.instance.currentUser!.uid;
-      await DatabaseMethods().saveQuizResult(userId, {
-        'title': widget.lectureTitle,
-        'score': correctCount,
-        'totalQuestions': _questions.length,
-        'difficulty': widget.difficulty,
-        'questions': _questions,
-        'selectedAnswers': _selectedAnswers.cast<int>(),
-      });
-    } catch (e) {
-      debugPrint('Error saving quiz result: $e');
+    // Save quiz result to Firebase (only if logged in - guest mode skips saving)
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await DatabaseMethods().saveQuizResult(user.uid, {
+          'title': widget.lectureTitle,
+          'score': correctCount,
+          'totalQuestions': _questions.length,
+          'difficulty': widget.difficulty,
+          'questions': _questions,
+          'selectedAnswers': _selectedAnswers.cast<int>(),
+        });
+      } catch (e) {
+        debugPrint('Error saving quiz result: $e');
+      }
     }
 
     setState(() {

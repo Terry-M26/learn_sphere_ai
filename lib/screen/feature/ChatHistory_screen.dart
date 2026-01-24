@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:learn_sphere_ai/helper/auth_helper.dart';
 import 'package:learn_sphere_ai/helper/theme_provider.dart';
 import 'package:learn_sphere_ai/service/database.dart';
 import 'package:provider/provider.dart';
@@ -21,17 +21,21 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    _loadConversations();
+    _checkAuthAndLoad();
   }
 
-  void _loadConversations() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      _userId = user.uid;
-      setState(() {
-        _conversationsStream = _db.getConversations(user.uid);
+  void _checkAuthAndLoad() {
+    if (!AuthHelper.isLoggedIn) {
+      // Should not happen as we check before navigating, but handle gracefully
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) Navigator.pop(context);
       });
+      return;
     }
+    _userId = AuthHelper.userId;
+    setState(() {
+      _conversationsStream = _db.getConversations(_userId!);
+    });
   }
 
   String _formatTimestamp(Timestamp? timestamp) {

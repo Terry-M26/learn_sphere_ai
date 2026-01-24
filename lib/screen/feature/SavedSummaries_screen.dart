@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:learn_sphere_ai/helper/auth_helper.dart';
 import 'package:learn_sphere_ai/service/database.dart';
 
 class SavedSummariesScreen extends StatefulWidget {
@@ -18,17 +18,30 @@ class SavedSummariesScreen extends StatefulWidget {
 
 class _SavedSummariesScreenState extends State<SavedSummariesScreen> {
   final DatabaseMethods _databaseMethods = DatabaseMethods();
-  final String _userId = FirebaseAuth.instance.currentUser!.uid;
+  String? _userId;
   Stream<QuerySnapshot>? _summariesStream;
 
   @override
   void initState() {
     super.initState();
+    _checkAuthAndLoad();
+  }
+
+  Future<void> _checkAuthAndLoad() async {
+    if (!AuthHelper.isLoggedIn) {
+      // Should not happen as we check before navigating, but handle gracefully
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) Navigator.pop(context);
+      });
+      return;
+    }
+    _userId = AuthHelper.userId;
     _initializeSummaries();
   }
 
   void _initializeSummaries() async {
-    _summariesStream = await _databaseMethods.getSummaries(_userId);
+    if (_userId == null) return;
+    _summariesStream = await _databaseMethods.getSummaries(_userId!);
     setState(() {});
   }
 
@@ -144,7 +157,7 @@ class _SavedSummariesScreenState extends State<SavedSummariesScreen> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              await _databaseMethods.deleteSummary(_userId, summaryId);
+              await _databaseMethods.deleteSummary(_userId!, summaryId);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Summary deleted'),

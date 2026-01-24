@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:get/get.dart';
 import 'package:learn_sphere_ai/apis/apis.dart';
+import 'package:learn_sphere_ai/helper/auth_helper.dart';
 import 'Quiz_screen.dart';
 import 'QuizHistory_screen.dart';
 
@@ -349,7 +350,16 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
           ],
         ),
         child: FloatingActionButton.extended(
-          onPressed: () => Get.to(() => const QuizHistoryScreen()),
+          onPressed: () async {
+            if (!AuthHelper.isLoggedIn) {
+              final loggedIn = await AuthHelper.showLoginRequiredDialog(
+                context,
+                featureName: 'Quiz History',
+              );
+              if (!loggedIn) return;
+            }
+            Get.to(() => const QuizHistoryScreen());
+          },
           backgroundColor: Colors.transparent,
           elevation: 0,
           icon: const Icon(Icons.history_rounded, color: Colors.white),

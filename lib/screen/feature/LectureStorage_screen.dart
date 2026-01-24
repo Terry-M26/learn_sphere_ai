@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
+import 'package:learn_sphere_ai/helper/auth_helper.dart';
 import 'package:learn_sphere_ai/screen/feature/AddModule.dart';
 import 'package:learn_sphere_ai/screen/feature/LectureNotes_screen.dart';
 import 'package:learn_sphere_ai/service/database.dart';
@@ -16,17 +16,40 @@ class LecturestorageScreen extends StatefulWidget {
 
 class _State extends State<LecturestorageScreen> {
   Stream? ModulesStream;
+  bool _isAuthorized = false;
 
   getModules() async {
-    final uid = FirebaseAuth.instance.currentUser!.uid;
+    if (!AuthHelper.isLoggedIn) return;
+    final uid = AuthHelper.userId!;
     ModulesStream = await DatabaseMethods().getModules(uid);
     setState(() {});
   }
 
   @override
   void initState() {
-    getModules();
     super.initState();
+    _checkAuthAndLoad();
+  }
+
+  Future<void> _checkAuthAndLoad() async {
+    if (!AuthHelper.isLoggedIn) {
+      // Show login dialog after frame is built
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final loggedIn = await AuthHelper.showLoginRequiredDialog(
+          context,
+          featureName: 'Lecture Storage',
+        );
+        if (!loggedIn && mounted) {
+          Navigator.pop(context);
+        } else if (mounted) {
+          setState(() => _isAuthorized = true);
+          getModules();
+        }
+      });
+    } else {
+      _isAuthorized = true;
+      getModules();
+    }
   }
 
   Widget allModulesDetails() {
@@ -328,24 +351,26 @@ class _State extends State<LecturestorageScreen> {
         ),
       ),
 
-      body: Container(
-        padding: const EdgeInsets.only(top: 16),
-        child: Column(
-          children: [
-            Expanded(
-              child: allModulesDetails()
-                  .animate()
-                  .fadeIn(duration: 600.ms)
-                  .slideY(
-                    begin: 0.3,
-                    end: 0,
-                    duration: 600.ms,
-                    curve: Curves.easeOutCubic,
+      body: !_isAuthorized
+          ? const Center(child: CircularProgressIndicator())
+          : Container(
+              padding: const EdgeInsets.only(top: 16),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: allModulesDetails()
+                        .animate()
+                        .fadeIn(duration: 600.ms)
+                        .slideY(
+                          begin: 0.3,
+                          end: 0,
+                          duration: 600.ms,
+                          curve: Curves.easeOutCubic,
+                        ),
                   ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -365,7 +390,8 @@ class _State extends State<LecturestorageScreen> {
             ),
             TextButton(
               onPressed: () async {
-                final uid = FirebaseAuth.instance.currentUser!.uid;
+                if (!AuthHelper.isLoggedIn) return;
+                final uid = AuthHelper.userId!;
                 await DatabaseMethods().deleteModule(uid, moduleId);
                 Navigator.of(context).pop();
                 ScaffoldMessenger.of(context).showSnackBar(
