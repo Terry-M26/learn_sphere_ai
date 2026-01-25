@@ -1,10 +1,20 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart';
-import 'package:learn_sphere_ai/helper/global.dart';
 import 'dart:developer';
+import 'package:cloud_functions/cloud_functions.dart';
 
 class APIs {
+  // Firebase Cloud Functions instance
+  static final _functions = FirebaseFunctions.instance;
+
+  // Helper method to call the OpenAI proxy Cloud Function
+  static Future<Map<String, dynamic>> _callOpenAIProxy(
+    Map<String, dynamic> payload,
+  ) async {
+    final callable = _functions.httpsCallable('openaiProxy');
+    final result = await callable.call({'payload': payload});
+    return Map<String, dynamic>.from(result.data);
+  }
+
   //get answer from GPT with conversation history for context
   static Future<String> getAnswer(
     String question, {
@@ -28,70 +38,42 @@ class APIs {
       // Add current question
       messages.add({"role": "user", "content": question});
 
-      final res = await post(
-        Uri.parse('https://api.openai.com/v1/chat/completions'),
-
-        //headers
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer $apiKey',
-
-          //body
-        },
-        body: jsonEncode({
-          "model": "gpt-3.5-turbo",
-          "max_tokens": 2000,
-          "temperature": 0,
-          "messages": messages,
-        }),
-      );
-
-      final data = jsonDecode(res.body);
+      final data = await _callOpenAIProxy({
+        "model": "gpt-3.5-turbo",
+        "max_tokens": 2000,
+        "temperature": 0,
+        "messages": messages,
+      });
 
       log('res: $data');
       return data['choices'][0]['message']['content'];
-    } on SocketException catch (_) {
-      log('getAnswer: Network error');
-      return 'No internet connection. Please check your network and try again.';
     } catch (e) {
       log('getAnswer: $e');
-      if (e.toString().contains('SocketException') ||
-          e.toString().contains('Failed host lookup')) {
-        return 'No internet connection. Please check your network and try again.';
-      }
-      return 'Service temporarily unavailable. Please try again later.';
+      return 'Something went wrong (Try again sometime)';
     }
   }
 
   // Summarize text using GPT
   static Future<String> summarizeText(String text) async {
     try {
-      final res = await post(
-        Uri.parse('https://api.openai.com/v1/chat/completions'),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer $apiKey',
-        },
-        body: jsonEncode({
-          "model": "gpt-3.5-turbo",
-          "max_tokens": 1500,
-          "temperature": 0.3,
-          "messages": [
-            {
-              "role": "system",
-              "content":
-                  "You are a helpful assistant that summarizes lecture notes and educational content. Create clear, concise summaries that capture the key points, main concepts, and important details. Use bullet points where appropriate. Keep the summary well-organized and easy to review.",
-            },
-            {
-              "role": "user",
-              "content":
-                  "Please summarize the following lecture content:\n\n$text",
-            },
-          ],
-        }),
-      );
+      final data = await _callOpenAIProxy({
+        "model": "gpt-3.5-turbo",
+        "max_tokens": 1500,
+        "temperature": 0.3,
+        "messages": [
+          {
+            "role": "system",
+            "content":
+                "You are a helpful assistant that summarizes lecture notes and educational content. Create clear, concise summaries that capture the key points, main concepts, and important details. Use bullet points where appropriate. Keep the summary well-organized and easy to review.",
+          },
+          {
+            "role": "user",
+            "content":
+                "Please summarize the following lecture content:\n\n$text",
+          },
+        ],
+      });
 
-      final data = jsonDecode(res.body);
       log('summarizeText res: $data');
 
       if (data['error'] != null) {
@@ -99,16 +81,9 @@ class APIs {
       }
 
       return data['choices'][0]['message']['content'];
-    } on SocketException catch (_) {
-      log('summarizeText: Network error');
-      return 'No internet connection. Please check your network and try again.';
     } catch (e) {
       log('summarizeText error: $e');
-      if (e.toString().contains('SocketException') ||
-          e.toString().contains('Failed host lookup')) {
-        return 'No internet connection. Please check your network and try again.';
-      }
-      return 'Service temporarily unavailable. Please try again later.';
+      return 'Something went wrong while summarizing. Please try again.';
     }
   }
 
@@ -119,28 +94,19 @@ class APIs {
     int totalChunks,
   ) async {
     try {
-      final res = await post(
-        Uri.parse('https://api.openai.com/v1/chat/completions'),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer $apiKey',
-        },
-        body: jsonEncode({
-          "model": "gpt-3.5-turbo",
-          "max_tokens": 800,
-          "temperature": 0.3,
-          "messages": [
-            {
-              "role": "system",
-              "content":
-                  "You are summarizing part $chunkNumber of $totalChunks of a lecture. Extract the key points concisely. Do not add introductions like 'This section covers...' - just list the main points directly.",
-            },
-            {"role": "user", "content": chunk},
-          ],
-        }),
-      );
-
-      final data = jsonDecode(res.body);
+      final data = await _callOpenAIProxy({
+        "model": "gpt-3.5-turbo",
+        "max_tokens": 800,
+        "temperature": 0.3,
+        "messages": [
+          {
+            "role": "system",
+            "content":
+                "You are summarizing part $chunkNumber of $totalChunks of a lecture. Extract the key points concisely. Do not add introductions like 'This section covers...' - just list the main points directly.",
+          },
+          {"role": "user", "content": chunk},
+        ],
+      });
 
       if (data['error'] != null) {
         return '';
@@ -158,32 +124,23 @@ class APIs {
     final combined = summaries.join('\n\n');
 
     try {
-      final res = await post(
-        Uri.parse('https://api.openai.com/v1/chat/completions'),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer $apiKey',
-        },
-        body: jsonEncode({
-          "model": "gpt-3.5-turbo",
-          "max_tokens": 1500,
-          "temperature": 0.3,
-          "messages": [
-            {
-              "role": "system",
-              "content":
-                  "You are combining multiple partial summaries of a lecture into one cohesive, well-organized final summary. Remove redundancy, organize by topic, and create a clear structure with bullet points where appropriate.",
-            },
-            {
-              "role": "user",
-              "content":
-                  "Combine these partial summaries into one cohesive summary:\n\n$combined",
-            },
-          ],
-        }),
-      );
-
-      final data = jsonDecode(res.body);
+      final data = await _callOpenAIProxy({
+        "model": "gpt-3.5-turbo",
+        "max_tokens": 1500,
+        "temperature": 0.3,
+        "messages": [
+          {
+            "role": "system",
+            "content":
+                "You are combining multiple partial summaries of a lecture into one cohesive, well-organized final summary. Remove redundancy, organize by topic, and create a clear structure with bullet points where appropriate.",
+          },
+          {
+            "role": "user",
+            "content":
+                "Combine these partial summaries into one cohesive summary:\n\n$combined",
+          },
+        ],
+      });
 
       if (data['error'] != null) {
         return 'Error: ${data['error']['message']}';
@@ -298,21 +255,15 @@ class APIs {
     final difficultyPrompt = _getDifficultyPrompt(difficulty);
 
     try {
-      final res = await post(
-        Uri.parse('https://api.openai.com/v1/chat/completions'),
-        headers: {
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: 'Bearer $apiKey',
-        },
-        body: jsonEncode({
-          "model": "gpt-3.5-turbo",
-          "max_tokens": 2000,
-          "temperature": 0.7,
-          "messages": [
-            {
-              "role": "system",
-              "content":
-                  '''You are a quiz generator for educational content. Generate exactly $questionCount multiple choice questions based on the provided lecture content.
+      final data = await _callOpenAIProxy({
+        "model": "gpt-3.5-turbo",
+        "max_tokens": 2000,
+        "temperature": 0.7,
+        "messages": [
+          {
+            "role": "system",
+            "content":
+                '''You are a quiz generator for educational content. Generate exactly $questionCount multiple choice questions based on the provided lecture content.
 
 Difficulty level: $difficulty
 $difficultyPrompt
@@ -325,17 +276,14 @@ IMPORTANT: You must respond with ONLY a valid JSON array, no other text. Each qu
 
 Example format:
 [{"question":"What is X?","options":["A","B","C","D"],"correctAnswer":0,"explanation":"A is correct because..."}]''',
-            },
-            {
-              "role": "user",
-              "content":
-                  "Generate $questionCount $difficulty multiple choice questions from this lecture content (part $chunkNumber of $totalChunks):\n\n$chunk",
-            },
-          ],
-        }),
-      );
-
-      final data = jsonDecode(res.body);
+          },
+          {
+            "role": "user",
+            "content":
+                "Generate $questionCount $difficulty multiple choice questions from this lecture content (part $chunkNumber of $totalChunks):\n\n$chunk",
+          },
+        ],
+      });
 
       if (data['error'] != null) {
         log('generateQuestions error: ${data['error']['message']}');
