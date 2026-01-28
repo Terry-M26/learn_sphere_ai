@@ -332,40 +332,46 @@ class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
           ),
         ),
       ),
-      floatingActionButton: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
-            colors: [
-              Color.fromARGB(255, 230, 30, 220),
-              Color.fromARGB(255, 10, 180, 247),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              colors: [
+                Color.fromARGB(255, 230, 30, 220),
+                Color.fromARGB(255, 10, 180, 247),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.purple.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
             ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.purple.withOpacity(0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 6),
+          child: FloatingActionButton.extended(
+            onPressed: () async {
+              if (!AuthHelper.isLoggedIn) {
+                final loggedIn = await AuthHelper.showLoginRequiredDialog(
+                  context,
+                  featureName: 'Quiz History',
+                );
+                if (!loggedIn) return;
+              }
+              Get.to(() => const QuizHistoryScreen());
+            },
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            icon: const Icon(Icons.history_rounded, color: Colors.white),
+            label: const Text(
+              'History',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ],
-        ),
-        child: FloatingActionButton.extended(
-          onPressed: () async {
-            if (!AuthHelper.isLoggedIn) {
-              final loggedIn = await AuthHelper.showLoginRequiredDialog(
-                context,
-                featureName: 'Quiz History',
-              );
-              if (!loggedIn) return;
-            }
-            Get.to(() => const QuizHistoryScreen());
-          },
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          icon: const Icon(Icons.history_rounded, color: Colors.white),
-          label: const Text(
-            'History',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
           ),
         ),
       ),
