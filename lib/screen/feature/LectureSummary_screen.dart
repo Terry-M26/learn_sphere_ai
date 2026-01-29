@@ -28,6 +28,20 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
   int _currentChunk = 0;
   int _totalChunks = 0;
 
+  bool _isSummaryGenerationFailure(String summary) {
+    final s = summary.trim();
+    if (s.isEmpty) return true;
+
+    if (s.startsWith('Error:')) return true;
+
+    if (s == 'Could not generate summary. Please try again.') return true;
+    if (s == 'Something went wrong while summarizing. Please try again.') {
+      return true;
+    }
+
+    return false;
+  }
+
   @override
   void dispose() {
     _textController.dispose();
@@ -227,10 +241,17 @@ class _LectureSummaryScreenState extends State<LectureSummaryScreen> {
         _extractedPdfText = null;
       });
 
+      final isFailure = _isSummaryGenerationFailure(summary);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Summary generated successfully!'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: Text(
+            isFailure ? summary : 'Summary generated successfully!',
+          ),
+          backgroundColor: isFailure
+              ? (summary.trim().startsWith('Error:')
+                    ? Colors.red
+                    : Colors.orange)
+              : Colors.green,
         ),
       );
     } catch (e) {
