@@ -1,23 +1,38 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:learn_sphere_ai/auth/google_auth.dart';
+// AuthHelper - utility class for authentication-related operations
+// Provides static methods for checking login status and showing login dialogs
 
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase authentication
+import 'package:flutter/material.dart'; // For BuildContext, widgets
+import 'package:learn_sphere_ai/auth/google_auth.dart'; // Google Sign-In implementation
+
+// Static utility class - no instance needed
+// Usage: AuthHelper.isLoggedIn, AuthHelper.showLoginRequiredDialog()
 class AuthHelper {
+  // Check if user is currently logged in
+  // Returns true if Firebase has a current user, false otherwise
   static bool get isLoggedIn => FirebaseAuth.instance.currentUser != null;
 
+  // Get the current Firebase User object (null if not logged in)
+  // User object contains: uid, email, displayName, photoURL, etc.
   static User? get currentUser => FirebaseAuth.instance.currentUser;
 
+  // Get just the user ID string (null if not logged in)
+  // Used for Firestore document paths: users/{userId}/...
   static String? get userId => FirebaseAuth.instance.currentUser?.uid;
 
-  /// Shows a login required dialog with option to sign in
-  /// Returns true if user successfully logged in, false otherwise
+  // Shows a modal dialog prompting user to sign in
+  // Returns true if user successfully logged in, false if cancelled/failed
+  // featureName: displayed in dialog to tell user why login is needed
   static Future<bool> showLoginRequiredDialog(
-    BuildContext context, {
-    required String featureName,
+    BuildContext context, { // Required for showing dialog
+    required String featureName, // e.g., "save chat history"
   }) async {
+    // showDialog returns the value passed to Navigator.pop()
     final result = await showDialog<bool>(
       context: context,
+      // Builder creates the dialog widget
       builder: (context) => AlertDialog(
+        // Rounded corners for modern look
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
@@ -59,20 +74,26 @@ class AuthHelper {
         ),
         actions: [
           TextButton(
+            // Cancel button - closes dialog and returns false
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
           ),
           ElevatedButton.icon(
+            // Sign In button - attempts Google sign-in
             onPressed: () async {
               try {
+                // Create GoogleAuth instance and attempt sign-in
                 final googleAuth = GoogleAuth();
                 final userCredential = await googleAuth.signInWithGoogle();
                 if (userCredential != null) {
+                  // Success - close dialog and return true
                   Navigator.pop(context, true);
                 } else {
+                  // Sign-in returned null - return false
                   Navigator.pop(context, false);
                 }
               } catch (e) {
+                // Show error message if sign-in fails
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Sign-in failed: $e'),
@@ -95,14 +116,17 @@ class AuthHelper {
         ],
       ),
     );
+    // Return result, defaulting to false if dialog dismissed without selection
     return result ?? false;
   }
 
-  /// Shows a snackbar indicating the feature requires login
+  // Shows a snackbar at bottom of screen with sign-in option
+  // Less intrusive than dialog - good for quick notifications
   static void showLoginRequiredSnackbar(
-    BuildContext context,
-    String featureName,
+    BuildContext context, // Required for ScaffoldMessenger
+    String featureName, // Action that requires login, e.g., "save progress"
   ) {
+    // ScaffoldMessenger manages snackbars for the current Scaffold
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -117,17 +141,22 @@ class AuthHelper {
           ],
         ),
         backgroundColor: Colors.orange[700],
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        behavior: SnackBarBehavior
+            .floating, // Floats above content instead of sticking to bottom
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ), // Rounded corners
+        // Action button on the snackbar for quick sign-in
         action: SnackBarAction(
           label: 'Sign In',
           textColor: Colors.white,
           onPressed: () async {
             try {
+              // Attempt Google sign-in when user taps action
               final googleAuth = GoogleAuth();
               await googleAuth.signInWithGoogle();
             } catch (e) {
-              // Ignore sign-in errors from snackbar
+              // Silently ignore errors - snackbar already dismissed
             }
           },
         ),

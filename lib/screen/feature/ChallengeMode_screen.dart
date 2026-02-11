@@ -1,37 +1,44 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:get/get.dart';
-import 'package:learn_sphere_ai/apis/apis.dart';
-import 'package:learn_sphere_ai/helper/auth_helper.dart';
-import 'Quiz_screen.dart';
-import 'QuizHistory_screen.dart';
+// ChallengeModeScreen - Quiz generation feature
+// Users upload a PDF lecture, AI generates multiple choice questions
+// Features: PDF text extraction, difficulty selection, question count, quiz history
 
+import 'dart:io'; // For File operations
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // For animations
+import 'package:file_picker/file_picker.dart'; // For PDF file selection
+import 'package:syncfusion_flutter_pdf/pdf.dart'; // For PDF text extraction
+import 'package:get/get.dart'; // For navigation
+import 'package:learn_sphere_ai/apis/apis.dart'; // For AI question generation
+import 'package:learn_sphere_ai/helper/auth_helper.dart'; // For login check
+import 'Quiz_screen.dart'; // Quiz taking screen
+import 'QuizHistory_screen.dart'; // Past quiz results
+
+// StatefulWidget to manage PDF selection and generation state
 class ChallengeModeScreen extends StatefulWidget {
-  const ChallengeModeScreen({super.key});
+  const ChallengeModeScreen({super.key}); // Constructor
 
   @override
   State<ChallengeModeScreen> createState() => _ChallengeModeScreenState();
 }
 
 class _ChallengeModeScreenState extends State<ChallengeModeScreen> {
-  String? _selectedFileName;
-  String? _extractedPdfText;
-  bool _isPdfSelected = false;
-  bool _isExtractingText = false;
-  bool _isGenerating = false;
+  // PDF file state
+  String? _selectedFileName; // Name of selected PDF file
+  String? _extractedPdfText; // Text content extracted from PDF
+  bool _isPdfSelected = false; // Whether a PDF has been selected
+  bool _isExtractingText = false; // Loading state during text extraction
+  bool _isGenerating = false; // Loading state during question generation
 
-  // Progress tracking for chunked generation
-  int _currentChunk = 0;
-  int _totalChunks = 0;
-  String? _lastError;
+  // Progress tracking for chunked generation (large PDFs)
+  int _currentChunk = 0; // Current chunk being processed
+  int _totalChunks = 0; // Total chunks to process
+  String? _lastError; // Last error message if any
 
-  // Quiz settings
-  int _selectedQuestionCount = 10;
-  String _selectedDifficulty = 'Medium';
+  // Quiz configuration settings
+  int _selectedQuestionCount = 10; // Number of questions to generate
+  String _selectedDifficulty = 'Medium'; // Easy/Medium/Hard
 
+  // Available options for quiz settings
   final List<int> _questionCountOptions = [5, 10, 20, 30];
   final List<String> _difficultyOptions = ['Easy', 'Medium', 'Hard'];
 

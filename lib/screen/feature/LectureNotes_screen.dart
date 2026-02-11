@@ -1,20 +1,25 @@
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:learn_sphere_ai/service/database.dart';
+// LectureNotesScreen - View and manage lecture files within a module
+// Displays list of uploaded PDF files for a specific module
+// Features: upload PDF, download/open PDF, delete files, Firebase Storage integration
 
+import 'dart:io'; // For File operations
+import 'package:cloud_firestore/cloud_firestore.dart'; // For Firestore streams
+import 'package:firebase_auth/firebase_auth.dart'; // For user ID
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart'; // For PDF file selection
+import 'package:open_file/open_file.dart'; // For opening downloaded PDF
+import 'package:path_provider/path_provider.dart'; // For temp directory
+import 'package:learn_sphere_ai/service/database.dart'; // For Firestore/Storage operations
+
+// StatefulWidget to manage lecture notes list and upload state
 class LectureNotesScreen extends StatefulWidget {
-  final String moduleId;
-  final String moduleName;
+  final String moduleId; // ID of the parent module
+  final String moduleName; // Name displayed in AppBar
 
   const LectureNotesScreen({
     super.key,
-    required this.moduleId,
-    required this.moduleName,
+    required this.moduleId, // Required to fetch correct notes
+    required this.moduleName, // Required for display
   });
 
   @override

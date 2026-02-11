@@ -1,25 +1,31 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
-import 'package:learn_sphere_ai/service/database.dart';
+// AddModule (Module) - Create or edit a lecture module
+// Users can add module details: name, lecturer, year, semester
+// Features: create new module, edit existing module, form validation
+// Saves module data to Firestore under user's collection
 
+import 'package:firebase_auth/firebase_auth.dart'; // For user ID
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // For animations
+import 'package:get/get.dart'; // For navigation
+import 'package:learn_sphere_ai/service/database.dart'; // For Firestore operations
+
+// StatefulWidget to manage form state and text controllers
 class Module extends StatefulWidget {
-  final String? moduleId;
-  final String? moduleName;
-  final String? lecturer;
-  final String? year;
-  final String? semester;
-  final bool isEditing;
+  final String? moduleId; // Existing module ID (for editing)
+  final String? moduleName; // Pre-filled module name
+  final String? lecturer; // Pre-filled lecturer name
+  final String? year; // Pre-filled year
+  final String? semester; // Pre-filled semester
+  final bool isEditing; // True if editing existing module
 
   const Module({
     super.key,
-    this.moduleId,
+    this.moduleId, // Null for new module
     this.moduleName,
     this.lecturer,
     this.year,
     this.semester,
-    this.isEditing = false,
+    this.isEditing = false, // Default: creating new module
   });
 
   @override

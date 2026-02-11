@@ -1,13 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:learn_sphere_ai/helper/auth_helper.dart';
-import 'package:learn_sphere_ai/helper/theme_provider.dart';
-import 'package:learn_sphere_ai/service/database.dart';
-import 'package:provider/provider.dart';
+// ChatHistoryScreen - View and manage saved AI Tutor conversations
+// Displays list of past conversations with timestamps
+// Features: load previous conversation, delete conversations, real-time updates
+// Requires authentication to access
 
+import 'package:cloud_firestore/cloud_firestore.dart'; // For Firestore streams
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // For date formatting
+import 'package:learn_sphere_ai/helper/auth_helper.dart'; // For login check
+import 'package:learn_sphere_ai/helper/theme_provider.dart'; // For theme
+import 'package:learn_sphere_ai/service/database.dart'; // For Firestore operations
+import 'package:provider/provider.dart'; // For Consumer widget
+
+// StatefulWidget to manage conversation list stream
 class ChatHistoryScreen extends StatefulWidget {
-  const ChatHistoryScreen({super.key});
+  const ChatHistoryScreen({super.key}); // Constructor
 
   @override
   State<ChatHistoryScreen> createState() => _ChatHistoryScreenState();

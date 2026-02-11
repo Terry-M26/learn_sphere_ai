@@ -1,16 +1,22 @@
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:learn_sphere_ai/helper/auth_helper.dart';
-import 'package:learn_sphere_ai/service/database.dart';
+// SavedSummariesScreen - View and manage saved lecture summaries
+// Displays list of AI-generated summaries with dates
+// Features: view full summary, export to PDF, delete summaries, real-time updates
+// Requires authentication to access
 
+import 'dart:io'; // For File operations
+import 'package:cloud_firestore/cloud_firestore.dart'; // For Firestore streams
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // For animations
+import 'package:intl/intl.dart'; // For date formatting
+import 'package:path_provider/path_provider.dart'; // For temp directory
+import 'package:open_file/open_file.dart'; // For opening exported PDF
+import 'package:syncfusion_flutter_pdf/pdf.dart'; // For PDF generation
+import 'package:learn_sphere_ai/helper/auth_helper.dart'; // For login check
+import 'package:learn_sphere_ai/service/database.dart'; // For Firestore operations
+
+// StatefulWidget to manage summaries stream
 class SavedSummariesScreen extends StatefulWidget {
-  const SavedSummariesScreen({super.key});
+  const SavedSummariesScreen({super.key}); // Constructor
 
   @override
   State<SavedSummariesScreen> createState() => _SavedSummariesScreenState();

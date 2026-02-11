@@ -1,8 +1,18 @@
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+// DatabaseMethods - Firestore and Firebase Storage operations
+// Handles all database CRUD operations for the app
+// Collections: users/{userId}/modules, conversations, quizHistory, summaries
+// Also handles file uploads to Firebase Storage
 
+import 'dart:io'; // For File operations
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore database
+import 'package:firebase_storage/firebase_storage.dart'; // File storage
+
+// Singleton-style class with static-like methods for database operations
 class DatabaseMethods {
+  // ==================== MODULE METHODS ====================
+
+  // Add a new module to user's collection
+  // Returns DocumentReference of created document
   Future addModuleDetails(
     Map<String, dynamic> moduleDetails,
     String userId,
@@ -14,6 +24,8 @@ class DatabaseMethods {
         .add(moduleDetails);
   }
 
+  // Get real-time stream of user's modules
+  // Returns Stream that updates when modules change
   Future<Stream<QuerySnapshot>> getModules(String userId) async {
     return await FirebaseFirestore.instance
         .collection("users")
@@ -22,6 +34,7 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  // Update existing module details
   Future updateModuleDetails(
     String userId,
     String moduleId,
@@ -35,6 +48,7 @@ class DatabaseMethods {
         .update(moduleDetails);
   }
 
+  // Delete a module document
   Future deleteModule(String userId, String moduleId) async {
     return await FirebaseFirestore.instance
         .collection("users")
@@ -44,7 +58,10 @@ class DatabaseMethods {
         .delete();
   }
 
-  // Lecture Notes Methods
+  // ==================== LECTURE NOTES METHODS ====================
+
+  // Get real-time stream of lecture notes for a module
+  // Ordered by upload date (newest first)
   Future<Stream<QuerySnapshot>> getLectureNotes(
     String userId,
     String moduleId,
@@ -59,6 +76,8 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  // Upload PDF to Firebase Storage and save metadata to Firestore
+  // Returns download URL of uploaded file
   Future<String> uploadPDF(
     String userId,
     String moduleId,
@@ -66,17 +85,19 @@ class DatabaseMethods {
     String fileName,
     int fileSize,
   ) async {
-    // Upload to Firebase Storage
+    // Build storage path: users/{uid}/modules/{moduleId}/pdfs/{filename}
     String storagePath = 'users/$userId/modules/$moduleId/pdfs/$fileName';
+    // Upload file to Firebase Storage
     UploadTask uploadTask = FirebaseStorage.instance
         .ref()
         .child(storagePath)
         .putFile(file);
 
+    // Wait for upload to complete and get download URL
     TaskSnapshot snapshot = await uploadTask;
     String downloadUrl = await snapshot.ref.getDownloadURL();
 
-    // Save metadata to Firestore
+    // Save file metadata to Firestore for listing
     await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -86,7 +107,7 @@ class DatabaseMethods {
         .add({
           'fileName': fileName,
           'downloadUrl': downloadUrl,
-          'storagePath': storagePath,
+          'storagePath': storagePath, // Needed for deletion
           'fileSize': fileSize,
           'uploadDate': FieldValue.serverTimestamp(),
         });
@@ -94,16 +115,17 @@ class DatabaseMethods {
     return downloadUrl;
   }
 
+  // Delete PDF from both Storage and Firestore
   Future<void> deletePDF(
     String userId,
     String moduleId,
     String docId,
     String storagePath,
   ) async {
-    // Delete from Storage
+    // Delete file from Firebase Storage
     await FirebaseStorage.instance.ref().child(storagePath).delete();
 
-    // Delete from Firestore
+    // Delete metadata from Firestore
     await FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -114,13 +136,17 @@ class DatabaseMethods {
         .delete();
   }
 
+  // Download PDF from Storage to local file
   Future<void> downloadPDFToFile(String downloadUrl, String filePath) async {
     await FirebaseStorage.instance
         .refFromURL(downloadUrl)
         .writeToFile(File(filePath));
   }
 
-  // Lecture Summary Methods (standalone collection)
+  // ==================== SUMMARY METHODS ====================
+
+  // Save AI-generated summary to Firestore
+  // Returns DocumentReference of created document
   Future<DocumentReference> saveSummary(
     String userId,
     String title,
@@ -137,6 +163,7 @@ class DatabaseMethods {
         });
   }
 
+  // Get real-time stream of user's summaries (newest first)
   Future<Stream<QuerySnapshot>> getSummaries(String userId) async {
     return FirebaseFirestore.instance
         .collection('users')
@@ -146,6 +173,7 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  // Delete a summary document
   Future<void> deleteSummary(String userId, String summaryId) async {
     await FirebaseFirestore.instance
         .collection('users')
@@ -155,6 +183,7 @@ class DatabaseMethods {
         .delete();
   }
 
+  // Update existing summary content
   Future<void> updateSummary(
     String userId,
     String summaryId,
@@ -173,7 +202,10 @@ class DatabaseMethods {
         });
   }
 
-  // Quiz History Methods
+  // ==================== QUIZ HISTORY METHODS ====================
+
+  // Save completed quiz result to Firestore
+  // Stores questions, answers, score for later review
   Future<DocumentReference> saveQuizResult(
     String userId,
     Map<String, dynamic> quizData,
@@ -193,6 +225,7 @@ class DatabaseMethods {
         });
   }
 
+  // Get real-time stream of quiz history (newest first)
   Future<Stream<QuerySnapshot>> getQuizHistory(String userId) async {
     return FirebaseFirestore.instance
         .collection('users')
@@ -202,6 +235,7 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  // Delete a quiz result document
   Future<void> deleteQuizResult(String userId, String quizId) async {
     await FirebaseFirestore.instance
         .collection('users')
@@ -211,6 +245,7 @@ class DatabaseMethods {
         .delete();
   }
 
+  // Get a single quiz result by ID
   Future<DocumentSnapshot> getQuizResult(String userId, String quizId) async {
     return await FirebaseFirestore.instance
         .collection('users')
@@ -220,7 +255,10 @@ class DatabaseMethods {
         .get();
   }
 
-  // Chat History Methods
+  // ==================== CHAT HISTORY METHODS ====================
+
+  // Save new AI Tutor conversation
+  // Returns DocumentReference for tracking conversation ID
   Future<DocumentReference> saveConversation(
     String userId,
     List<Map<String, dynamic>> messages,
@@ -236,6 +274,7 @@ class DatabaseMethods {
         });
   }
 
+  // Update existing conversation with new messages
   Future<void> updateConversation(
     String userId,
     String conversationId,
@@ -252,6 +291,7 @@ class DatabaseMethods {
         });
   }
 
+  // Get real-time stream of conversations (most recent first)
   Stream<QuerySnapshot> getConversations(String userId) {
     return FirebaseFirestore.instance
         .collection('users')
@@ -261,6 +301,7 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  // Get a single conversation by ID
   Future<DocumentSnapshot> getConversation(
     String userId,
     String conversationId,
@@ -273,6 +314,7 @@ class DatabaseMethods {
         .get();
   }
 
+  // Delete a conversation document
   Future<void> deleteConversation(String userId, String conversationId) async {
     await FirebaseFirestore.instance
         .collection('users')

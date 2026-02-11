@@ -1,16 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:learn_sphere_ai/service/database.dart';
-import 'QuizResults_screen.dart';
+// QuizScreen - Interactive quiz taking interface
+// Displays AI-generated questions one at a time with multiple choice options
+// Features: question navigation, answer selection, progress tracking, results submission
+// Quiz results are saved to Firestore for logged-in users
 
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // For animations
+import 'package:get/get.dart'; // For navigation
+import 'package:firebase_auth/firebase_auth.dart'; // For user ID
+import 'package:learn_sphere_ai/service/database.dart'; // For saving results
+import 'QuizResults_screen.dart'; // Results display screen
+
+// StatefulWidget to manage quiz state (current question, selected answers)
 class QuizScreen extends StatefulWidget {
-  final String lectureTitle;
-  final int questionCount;
-  final String difficulty;
-  final String lectureText;
-  final List<Map<String, dynamic>>? questions;
+  final String lectureTitle; // Title of the lecture being quizzed
+  final int questionCount; // Total number of questions
+  final String difficulty; // Easy/Medium/Hard
+  final String lectureText; // Original lecture content
+  final List<Map<String, dynamic>>? questions; // AI-generated questions
 
   const QuizScreen({
     super.key,
@@ -18,7 +24,7 @@ class QuizScreen extends StatefulWidget {
     required this.questionCount,
     required this.difficulty,
     required this.lectureText,
-    this.questions,
+    this.questions, // Optional - can be null for mock testing
   });
 
   @override

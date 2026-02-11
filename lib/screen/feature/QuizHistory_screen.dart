@@ -1,13 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:get/get.dart';
-import 'package:learn_sphere_ai/helper/auth_helper.dart';
-import 'package:learn_sphere_ai/service/database.dart';
-import 'QuizResults_screen.dart';
+// QuizHistoryScreen - View past quiz attempts and results
+// Displays list of completed quizzes with scores and dates
+// Features: view detailed results, delete quiz history, real-time updates
+// Requires authentication to access
 
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // For animations
+import 'package:cloud_firestore/cloud_firestore.dart'; // For Firestore streams
+import 'package:get/get.dart'; // For navigation
+import 'package:learn_sphere_ai/helper/auth_helper.dart'; // For login check
+import 'package:learn_sphere_ai/service/database.dart'; // For Firestore operations
+import 'QuizResults_screen.dart'; // View detailed results
+
+// StatefulWidget to manage quiz history stream
 class QuizHistoryScreen extends StatefulWidget {
-  const QuizHistoryScreen({super.key});
+  const QuizHistoryScreen({super.key}); // Constructor
 
   @override
   State<QuizHistoryScreen> createState() => _QuizHistoryScreenState();

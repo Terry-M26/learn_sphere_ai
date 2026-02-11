@@ -1,17 +1,23 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get.dart';
-import 'package:learn_sphere_ai/apis/apis.dart';
-import 'package:learn_sphere_ai/helper/auth_helper.dart';
-import 'package:learn_sphere_ai/service/database.dart';
-import 'package:learn_sphere_ai/screen/feature/SavedSummaries_screen.dart';
+// LectureSummaryScreen - AI-powered lecture summarization
+// Users can paste text or upload PDF, AI generates concise summary
+// Features: PDF text extraction, chunked summarization for large docs, save summaries
+// Summaries are saved to Firestore for logged-in users
 
+import 'dart:io'; // For File operations
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // For animations
+import 'package:file_picker/file_picker.dart'; // For PDF selection
+import 'package:syncfusion_flutter_pdf/pdf.dart'; // For PDF text extraction
+import 'package:firebase_auth/firebase_auth.dart'; // For user ID
+import 'package:get/get.dart'; // For navigation
+import 'package:learn_sphere_ai/apis/apis.dart'; // For AI summarization
+import 'package:learn_sphere_ai/helper/auth_helper.dart'; // For login check
+import 'package:learn_sphere_ai/service/database.dart'; // For saving summaries
+import 'package:learn_sphere_ai/screen/feature/SavedSummaries_screen.dart'; // View saved
+
+// StatefulWidget to manage text input, PDF selection, and summarization state
 class LectureSummaryScreen extends StatefulWidget {
-  const LectureSummaryScreen({super.key});
+  const LectureSummaryScreen({super.key}); // Constructor
 
   @override
   State<LectureSummaryScreen> createState() => _LectureSummaryScreenState();

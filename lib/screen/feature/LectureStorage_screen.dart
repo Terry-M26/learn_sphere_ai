@@ -1,14 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
-import 'package:learn_sphere_ai/helper/auth_helper.dart';
-import 'package:learn_sphere_ai/screen/feature/AddModule.dart';
-import 'package:learn_sphere_ai/screen/feature/LectureNotes_screen.dart';
-import 'package:learn_sphere_ai/service/database.dart';
+// LectureStorageScreen - Module and lecture file management
+// Users can create modules (folders) and upload lecture PDFs
+// Features: module CRUD, file upload to Firebase Storage, lecture notes viewing
+// Requires authentication to access
 
+import 'package:cloud_firestore/cloud_firestore.dart'; // For Firestore streams
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // For animations
+import 'package:get/get.dart'; // For navigation
+import 'package:learn_sphere_ai/helper/auth_helper.dart'; // For login check
+import 'package:learn_sphere_ai/screen/feature/AddModule.dart'; // Add module screen
+import 'package:learn_sphere_ai/screen/feature/LectureNotes_screen.dart'; // View lectures
+import 'package:learn_sphere_ai/service/database.dart'; // Firestore operations
+
+// StatefulWidget to manage module list and auth state
 class LecturestorageScreen extends StatefulWidget {
-  const LecturestorageScreen({super.key});
+  const LecturestorageScreen({super.key}); // Constructor
 
   @override
   State<LecturestorageScreen> createState() => _State();

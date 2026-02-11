@@ -1,16 +1,21 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
-import 'ChallengeMode_screen.dart';
-import 'Quiz_screen.dart';
+// QuizResultsScreen - Displays quiz results after completion
+// Shows score, correct/incorrect breakdown, and detailed question review
+// Features: score percentage, question-by-question review with explanations, retry option
 
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // For animations
+import 'package:get/get.dart'; // For navigation
+import 'ChallengeMode_screen.dart'; // Return to challenge mode
+import 'Quiz_screen.dart'; // Retry quiz
+
+// StatefulWidget to calculate and display quiz results
 class QuizResultsScreen extends StatefulWidget {
-  final String lectureTitle;
-  final List<Map<String, dynamic>> questions;
-  final List<int> selectedAnswers;
-  final String difficulty;
-  final String lectureText;
-  final bool isFromHistory;
+  final String lectureTitle; // Title of the lecture quizzed
+  final List<Map<String, dynamic>> questions; // All quiz questions
+  final List<int> selectedAnswers; // User's selected answers (indices)
+  final String difficulty; // Quiz difficulty level
+  final String lectureText; // Original lecture content
+  final bool isFromHistory; // Whether viewing from history (no retry)
 
   const QuizResultsScreen({
     super.key,
@@ -19,7 +24,7 @@ class QuizResultsScreen extends StatefulWidget {
     required this.selectedAnswers,
     required this.difficulty,
     required this.lectureText,
-    this.isFromHistory = false,
+    this.isFromHistory = false, // Default: not from history
   });
 
   @override
