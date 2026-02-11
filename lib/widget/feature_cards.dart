@@ -4,7 +4,7 @@
 
 import 'package:flutter/material.dart'; // For Color, VoidCallback
 import 'package:get/get.dart'; // For Get.to() navigation
-import '../model/home_type.dart' as homeType; // AI Tutor navigation
+import '../screen/feature/AITutorChat.dart'; // AI Tutor chat screen
 import '../screen/feature/ChallengeMode_screen.dart'; // Quiz feature screen
 import '../screen/feature/LectureStorage_screen.dart'; // File storage screen
 import '../screen/feature/LectureSummary_screen.dart'; // Summary feature screen
@@ -75,8 +75,10 @@ enum FeatureCards {
   VoidCallback get onTap {
     switch (this) {
       case FeatureCards.aiTutorChat:
-        // Uses HomeType extension for AI Tutor navigation
-        return homeType.HomeType.aiTutor.onTap;
+        // Navigate to AI Tutor chat screen
+        return () {
+          Get.to(() => const AITutorChat());
+        };
       case FeatureCards.challengeMode:
         // Navigate to Challenge Mode quiz screen
         return () {

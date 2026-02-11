@@ -32,7 +32,6 @@ class _ChatHistoryScreenState extends State<ChatHistoryScreen> {
 
   void _checkAuthAndLoad() {
     if (!AuthHelper.isLoggedIn) {
-      // Should not happen as we check before navigating, but handle gracefully
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) Navigator.pop(context);
       });
