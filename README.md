@@ -29,29 +29,29 @@ LearnSphere AI is a comprehensive AI-powered learning assistant built with Flutt
 
 ## Features
 
-### 🤖 AI Tutor Chat
+### AI Tutor Chat
 - Interactive chatbot powered by GPT-3.5 Turbo
 - Step-by-step explanations and guided learning
 - Conversation history for review
 - Encourages critical thinking over direct answers
 
-### 📚 Lecture Storage
+### Lecture Storage
 - Upload and organize lecture notes (PDF support)
 - Module-based organization
 - Cloud storage with Firebase
 
-### 📝 Lecture Summary
+### Lecture Summary
 - AI-powered summarization of lecture content
 - Handles large documents through intelligent chunking
 - Save and review summaries
 
-### 🎯 Challenge Mode
+### Challenge Mode
 - Auto-generated quizzes from lecture content
 - Multiple difficulty levels (Easy, Medium, Hard)
 - Customizable question count
 - Quiz history and performance tracking
 
-### 🎨 Additional Features
+### Additional Features
 - Beautiful animated splash screen
 - Onboarding flow for new users
 - Dark/Light theme support
